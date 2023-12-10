@@ -12,90 +12,153 @@ const globalVars = {
 
 }
 
-// Asks for user input for start date
-function getStartDate() {
-    const startDate = document.getElementById('start-date');
-    return startDate;
-}
-
-
-
-// Refactor Elements
-// class Fetch {
-//     async fetchAPIData(endpoint) {
-//         const response = await fetch(endpoint);
-
-//         const { status } = response;
-
-
-//         const data = await response.json();
-
-//         return data;
-//     }
-// }
-
-// fetchAPIData Async Function
-// - Fetch Data from NASA API to access Data
-// - Check if status is 200 or not and only proceed if status is 200
-// - Dynamically add endpoint for different fetch requests
-// - Turn response to json
-// - Return data to be used in displaying each type of content
-async function fetchAPIData(endpoint) {
-    const response = await fetch(`${globalVars.api.apiURL}${endpoint}?api_key=${globalVars.api.apiKey}`);
-
-    const data = await response.json();
-
-    return data;
-}
 
 // displayApodData Async Function
-async function displayApodData() {
-    const apod = await fetchAPIData(`${globalVars.api.categories.pod}`);
+async function displayApodData(start, end) {
+    //console.log(start)
 
+    if(start !== undefined && end !== ''){
+        displayApodRange(start, end);
+        resetUI();
+    }
+    else if(start !== '' && start !== undefined){
+            displayApodStart(start);
+            resetUI();
+    }
+    else {
+        displayApod();
+        resetUI();   
+    }
+
+    //resetUI();
+
+}
+
+// Display picture of the Day
+async function displayApod() {
+    let response = await fetch(`${globalVars.api.apiURL}${globalVars.api.categories.pod}?api_key=${globalVars.api.apiKey}`);
+    let apod = await response.json();
     console.log(apod);
-    // Create Cards
     const card = document.createElement('div');
     card.classList = 'card border border-0 mt-5';
 
     card.innerHTML = `
-        <div class="card-body container">
-            <div class="row">
-                <div class="col-12 col-md-6">
-                <img
-                    class="card-img mb-5 img-fluid"
-                    src="${apod.url}"
-                    alt="${apod.title}"
-                />
+                <div class="card-body container">
+                    <div class="row">
+                        <div class="col-12 col-md-6">
+                        <img
+                            class="card-img mb-5 img-fluid"
+                            src="${apod.url}"
+                            alt="${apod.title}"
+                        />
+                        </div>
+                        <div class="col-12 col-md-6">
+                        <h2 class="card-title mb-4">${apod.title}</h2>
+                        <p class="card-text">
+                            Featured Date: ${apod.date}
+                        </p>
+                        <p class="card-text">
+                            ${apod.explanation}
+                        </p>
+                        </div>
+                    </div>
                 </div>
-                <div class="col-12 col-md-6">
-                <h2 class="card-title mb-4">${apod.title}</h2>
-                <p class="card-text">
-                    Featured Date: ${apod.date}
-                </p>
-                <p class="card-text">
-                    ${apod.explanation}
-                </p>
-                </div>
-            </div>
-        </div>
-    `;
+                `;
 
     document.getElementById('apod-content').appendChild(card);
-
 }
 
+// Display picture of the Day that user chose
+async function displayApodRange(start,end) {
+    let response = await fetch(`${globalVars.api.apiURL}${globalVars.api.categories.pod}?api_key=${globalVars.api.apiKey}&start_date=${start}&end_date=${end}`);
+    let apod = await response.json();
+    for (let i = 0; i < apod.length; i++) {
+        console.log(apod[i])
+        const card = document.createElement('div');
+        card.classList = 'card border border-0 mt-5';
+
+        card.innerHTML = `
+                    <div class="card-body container">
+                        <div class="row">
+                            <div class="col-12 col-md-6">
+                            <img
+                                class="card-img mb-5 img-fluid"
+                                src="${apod[i].url}"
+                                alt="${apod[i].title}"
+                            />
+                            </div>
+                            <div class="col-12 col-md-6">
+                            <h2 class="card-title mb-4">${apod[i].title}</h2>
+                            <p class="card-text">
+                                Featured Date: ${apod[i].date}
+                            </p>
+                            <p class="card-text">
+                                ${apod[i].explanation}
+                            </p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+        document.getElementById('apod-content').appendChild(card);
+    }
+}
+
+// Display pictures within range of user input
+async function displayApodStart(start) {
+    let response = await fetch(`${globalVars.api.apiURL}${globalVars.api.categories.pod}?api_key=${globalVars.api.apiKey}&date=${start}`)
+    let apod = await response.json();
+    const card = document.createElement('div');
+    card.classList = 'card border border-0 mt-5';
+
+    card.innerHTML = `
+                <div class="card-body container">
+                    <div class="row">
+                        <div class="col-12 col-md-6">
+                        <img
+                            class="card-img mb-5 img-fluid"
+                            src="${apod.url}"
+                            alt="${apod.title}"
+                        />
+                        </div>
+                        <div class="col-12 col-md-6">
+                        <h2 class="card-title mb-4">${apod.title}</h2>
+                        <p class="card-text">
+                            Featured Date: ${apod.date}
+                        </p>
+                        <p class="card-text">
+                            ${apod.explanation}
+                        </p>
+                        </div>
+                    </div>
+                </div>
+                `;
+
+    document.getElementById('apod-content').appendChild(card);
+}
+// If apod section is not empty, then remove items
+function resetUI() {
+    const apodContent = document.getElementById('apod-content');
+    const apod = document.querySelector('.card');
+    
+    console.log(apodContent);
+    if(apodContent.length !== 0) {
+        apodContent.removeChild(apod);
+    }
+
+}
 // NeoWS
 async function displayNeowsData() {
     const date = getSystemDate();
-    const neows = await fetchAPIData(`${globalVars.api.categories.neows}`);
-
+    const response = await fetch(`${globalVars.api.apiURL}${globalVars.api.categories.neows}?api_key=${globalVars.api.apiKey}`);
+    const neows = await response.json();
     let title = document.getElementById('title');
     title.innerHTML = `Near Earth Objects for ${date}`;
-    
+
     console.log(neows);
 
     for (let i = 0; i < neows.near_earth_objects[date].length; i++) {
-        
+
         // Create Cards
         const card = document.createElement('div');
         card.classList = 'card border p-2 mt-5';
@@ -153,20 +216,49 @@ function getSystemDate() {
     return date;
 }
 
-function getInputVal() {
+// Get date values from user from APOD Page
+function getDateVal(event) {
+    event.preventDefault();
+    const start = document.getElementById('start-date');
+    const end = document.getElementById('end-date');
 
+    let endDate = '';
+    let startDate = '';
+
+    if (start.value !== '') {
+        if (end.value !== '') {
+            endDate = end.value;
+        }
+        startDate = start.value;
+    }
+    else {
+        alert("Please enter a start date")
+    }
+
+    // Reset Form
+    form.reset();
+
+    displayApodData(startDate, endDate);
+    
+    
 }
+
+const form = document.getElementById('apod-date-form');
+
 
 function init() {
     switch (globalVars.currentPage) {
         case '/':
         case '/index.html':
+            form.addEventListener('submit', getDateVal);
             displayApodData();
             break;
         case '/neows.html':
             displayNeowsData();
             break;
     }
+
+
 }
 
 document.addEventListener('DOMContentLoaded', init);
