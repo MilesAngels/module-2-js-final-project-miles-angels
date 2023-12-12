@@ -16,21 +16,23 @@ const globalVars = {
 // displayApodData Async Function
 async function displayApodData(start, end) {
     //console.log(start)
-
+    
     if(start !== undefined && end !== ''){
-        displayApodRange(start, end);
         resetUI();
+        displayApodRange(start, end);
     }
     else if(start !== '' && start !== undefined){
-            displayApodStart(start);
-            resetUI();
+        resetUI();
+        displayApodStart(start);
+    
     }
     else {
         displayApod();
-        resetUI();   
+   
     }
 
-    //resetUI();
+    resetUI();
+    
 
 }
 
@@ -46,11 +48,20 @@ async function displayApod() {
                 <div class="card-body container">
                     <div class="row">
                         <div class="col-12 col-md-6">
-                        <img
-                            class="card-img mb-5 img-fluid"
-                            src="${apod.url}"
-                            alt="${apod.title}"
-                        />
+                        ${ 
+                            apod.media_type === 'image'
+                            // If media type is image
+                                ? `<img
+                                    class="card-img mb-5 img-fluid"
+                                    src="${apod.url}"
+                                    alt="${apod.title}"
+                                    />`
+                            // If media type is video
+                                : `<div class="ratio ratio-16x9">
+                                        <iframe src="${apod.url} title="${apod.title}" allowfullscreen" ></iframe>
+                                    </div>`
+                        }
+                        
                         </div>
                         <div class="col-12 col-md-6">
                         <h2 class="card-title mb-4">${apod.title}</h2>
@@ -72,6 +83,7 @@ async function displayApod() {
 async function displayApodRange(start,end) {
     let response = await fetch(`${globalVars.api.apiURL}${globalVars.api.categories.pod}?api_key=${globalVars.api.apiKey}&start_date=${start}&end_date=${end}`);
     let apod = await response.json();
+    console.log(apod.url);
     for (let i = 0; i < apod.length; i++) {
         console.log(apod[i])
         const card = document.createElement('div');
@@ -81,11 +93,18 @@ async function displayApodRange(start,end) {
                     <div class="card-body container">
                         <div class="row">
                             <div class="col-12 col-md-6">
-                            <img
-                                class="card-img mb-5 img-fluid"
-                                src="${apod[i].url}"
-                                alt="${apod[i].title}"
-                            />
+                            ${
+                                apod[i].media_type !== 'image'
+                                    ?  `<div class="ratio ratio-16x9">
+                                            <iframe src="${apod[i].url} title="${apod[i].title}" allowfullscreen" ></iframe>
+                                        </div>`
+                                    :  `<img
+                                        class="card-img mb-5 img-fluid"
+                                        src="${apod[i].url}"
+                                        alt="${apod[i].title}"
+                                        />` 
+                            }
+                            
                             </div>
                             <div class="col-12 col-md-6">
                             <h2 class="card-title mb-4">${apod[i].title}</h2>
@@ -115,11 +134,19 @@ async function displayApodStart(start) {
                 <div class="card-body container">
                     <div class="row">
                         <div class="col-12 col-md-6">
-                        <img
-                            class="card-img mb-5 img-fluid"
-                            src="${apod.url}"
-                            alt="${apod.title}"
-                        />
+                        ${ 
+                            apod.media_type === 'image'
+                            // If media type is image
+                                ? `<img
+                                    class="card-img mb-5 img-fluid"
+                                    src="${apod.url}"
+                                    alt="${apod.title}"
+                                    />`
+                            // If media type is video
+                                : `<div class="ratio ratio-16x9">
+                                        <iframe src="${apod.url} title="${apod.title}" allowfullscreen" ></iframe>
+                                    </div>`
+                        }
                         </div>
                         <div class="col-12 col-md-6">
                         <h2 class="card-title mb-4">${apod.title}</h2>
@@ -155,7 +182,7 @@ async function displayNeowsData() {
     let title = document.getElementById('title');
     title.innerHTML = `Near Earth Objects for ${date}`;
 
-    console.log(neows);
+    console.log(neows.links.previous);
 
     for (let i = 0; i < neows.near_earth_objects[date].length; i++) {
 
@@ -204,16 +231,16 @@ async function displayNeowsData() {
         document.getElementById('neows-content').appendChild(card);
     }
 
-
-
-    console.log(neows.near_earth_objects[date][0].name);
 }
 
 // Get current date from system
+// - Get PDT offset to subtract from UTC
 function getSystemDate() {
-    const date = new Date().toISOString().slice(0, 10);
-
-    return date;
+    const date = new Date()
+    const offset = date.getTimezoneOffset();
+    const localDate = new Date(date.getTime() - offset * 60000);
+    console.log(localDate)
+    return localDate.toISOString().slice(0, 10);
 }
 
 // Get date values from user from APOD Page
@@ -245,7 +272,6 @@ function getDateVal(event) {
 
 const form = document.getElementById('apod-date-form');
 
-
 function init() {
     switch (globalVars.currentPage) {
         case '/':
@@ -258,8 +284,8 @@ function init() {
             break;
     }
 
-
 }
 
 document.addEventListener('DOMContentLoaded', init);
 
+getSystemDate()

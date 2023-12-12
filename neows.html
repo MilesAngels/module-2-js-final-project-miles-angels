@@ -43,8 +43,6 @@
           <div class="navbar-nav">
             <a class="nav-link active" aria-current="page" href="/index.html">APOD</a>
             <a class="nav-link" href="/neows.html">NeoWs</a>
-            <a class="nav-link" href="#">Pricing</a>
-            <a class="nav-link disabled" aria-disabled="true">Disabled</a>
           </div>
         </div>
       </div>
@@ -52,19 +50,28 @@
     <!-- End of Navigation -->
     <!-- Date Input Form -->
     <div class="date-range container mt-5">
-        <form class="input-group">
-            <span class="input-group-text">Start and End Date</span>
-            <input type="date" aria-label="Start Date" id="start-date" class="form-control">
-            <input type="date" aria-label="End Date" class="form-control">
-            <span class="input-group-text"><button class="border border-0 bg-light" type="submit">Submit</button></span>
-        </form>
+      <form id="neows-date-form" class="bg-body-secondary p-3 rounded">
+        <h3></h3>
+        <div class="mb-3">
+          <input type="text" class="form-control" id="search" aria-describedby="Search Asteroids" placeholder="Search...">
+          <label for="neows-date" class="form-label">Date</label>
+          <input type="date" class="form-control" id="neows-date" aria-describedby="Date" placeholder="filter">
+        </div>
+        <button type="submit" class="btn btn-dark" id="neows-date-submit">Submit</button>
+      </form> 
     </div>
     <!-- Start of NeoWS Content -->
     <h1 id="title" class="container mt-5"></h1>
-    <section id="neows-content" class="container">
-      
-      
-    </section>
+    <div class="container">
+      <section id="neows-content" class="container">
+        
+        
+      </section>
+    </div>
+    <footer class="container d-flex flex-column align-items-center mt-4">
+      <p>Made with NASA API</p>
+      <p>Made By MMRA</p>
+    </footer>
     <script
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
       integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
