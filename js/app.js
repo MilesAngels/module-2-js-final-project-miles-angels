@@ -296,7 +296,9 @@ function getDateVal(event) {
             }
             startDate = start.value;
         }
-        alert('Please keep range within 7 days.')
+        else {
+            alert('Please keep range within 7 days.');
+        }
     }
     else {
         alert("Please enter a start date")
