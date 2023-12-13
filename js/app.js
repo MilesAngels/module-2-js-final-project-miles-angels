@@ -6,8 +6,8 @@ const globalVars = {
         categories: {
             pod: '/planetary/apod',
             neows: '/neo/rest/v1/feed'
-        },
-        date: ''
+        }
+
     }
 
 }
@@ -29,9 +29,7 @@ async function displayApodData(start, end) {
         displayApod();
 
     }
-
     resetUI();
-
 
 }
 
@@ -54,18 +52,16 @@ function displayApodHTML(apod) {
                         <figure mb-5>
                         ${apod.media_type === 'image'
             // If media type is image
-            ? `<img
-                                    class="card-img img-fluid"
-                                    src="${apod.url}"
-                                    alt="${apod.title}"
-                                    />`
+            ? `<img class="card-img img-fluid" src="${apod.url}" alt="${apod.title}"/>`
             // If media type is video
             : `<div class="ratio ratio-16x9">
-                                        <iframe src="${apod.url} title="${apod.title}" allowfullscreen" ></iframe>
-                                    </div>`
+                                    <iframe src="${apod.url} title="${apod.title}" allowfullscreen" ></iframe>
+                                </div>`
         }
-        ${apod.hasOwnProperty('copyright') 
-            ? `<figcaption class="text-muted"><em>Copyright: ${apod.copyright}</em></figcaption>` 
+                        ${apod.hasOwnProperty('copyright')
+            // If apod has copyright display it
+            ? `<figcaption class="text-muted"><em>Copyright: ${apod.copyright}</em></figcaption>`
+            // else do not display it
             : `<figcaption class="d-none"></figcaption>`}
                         </figure>
                         </div>
@@ -96,7 +92,7 @@ async function displayApodRange(start, end) {
 async function displayApodStart(start) {
     let response = await fetch(`${globalVars.api.apiURL}${globalVars.api.categories.pod}?api_key=${globalVars.api.apiKey}&date=${start}`)
     let apod = await response.json();
-    
+
     displayApodHTML(apod);
 }
 
@@ -282,18 +278,30 @@ function getDateVal(event) {
     const start = document.getElementById('start-date');
     const end = document.getElementById('end-date');
 
+    let date1 = new Date(start.value);
+    let date2 = new Date(end.value);
+
+    let time_diff = date2.getTime() - date1.getTime();
+    let result = time_diff / (1000 * 60 * 60 * 24);
+    console.log(result)
+
+
     let endDate = '';
     let startDate = '';
 
     if (start.value !== '') {
-        if (end.value !== '') {
-            endDate = end.value;
+        if (result <= 7) {
+            if (end.value !== '') {
+                endDate = end.value;
+            }
+            startDate = start.value;
         }
-        startDate = start.value;
+        alert('Please keep range within 7 days.')
     }
     else {
         alert("Please enter a start date")
     }
+
 
     // Reset Form
     apodForm.reset();
@@ -341,4 +349,4 @@ function init() {
 document.addEventListener('DOMContentLoaded', init);
 
 // create
-resetUI();
+// resetUI();
