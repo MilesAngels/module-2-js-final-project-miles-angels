@@ -16,23 +16,23 @@ const globalVars = {
 // displayApodData Async Function
 async function displayApodData(start, end) {
     //console.log(start)
-    
-    if(start !== undefined && end !== ''){
+
+    if (start !== undefined && end !== '') {
         resetUI();
         displayApodRange(start, end);
     }
-    else if(start !== '' && start !== undefined){
+    else if (start !== '' && start !== undefined) {
         resetUI();
         displayApodStart(start);
-    
+
     }
     else {
         displayApod();
-   
+
     }
 
     resetUI();
-    
+
 
 }
 
@@ -48,19 +48,18 @@ async function displayApod() {
                 <div class="card-body container">
                     <div class="row">
                         <div class="col-12 col-md-6">
-                        ${ 
-                            apod.media_type === 'image'
-                            // If media type is image
-                                ? `<img
+                        ${apod.media_type === 'image'
+            // If media type is image
+            ? `<img
                                     class="card-img mb-5 img-fluid"
                                     src="${apod.url}"
                                     alt="${apod.title}"
                                     />`
-                            // If media type is video
-                                : `<div class="ratio ratio-16x9">
+            // If media type is video
+            : `<div class="ratio ratio-16x9">
                                         <iframe src="${apod.url} title="${apod.title}" allowfullscreen" ></iframe>
                                     </div>`
-                        }
+        }
                         
                         </div>
                         <div class="col-12 col-md-6">
@@ -80,7 +79,7 @@ async function displayApod() {
 }
 
 // Display picture of the Day that user chose
-async function displayApodRange(start,end) {
+async function displayApodRange(start, end) {
     let response = await fetch(`${globalVars.api.apiURL}${globalVars.api.categories.pod}?api_key=${globalVars.api.apiKey}&start_date=${start}&end_date=${end}`);
     let apod = await response.json();
     console.log(apod.url);
@@ -93,17 +92,16 @@ async function displayApodRange(start,end) {
                     <div class="card-body container">
                         <div class="row">
                             <div class="col-12 col-md-6">
-                            ${
-                                apod[i].media_type !== 'image'
-                                    ?  `<div class="ratio ratio-16x9">
+                            ${apod[i].media_type !== 'image'
+                ? `<div class="ratio ratio-16x9">
                                             <iframe src="${apod[i].url} title="${apod[i].title}" allowfullscreen" ></iframe>
                                         </div>`
-                                    :  `<img
+                : `<img
                                         class="card-img mb-5 img-fluid"
                                         src="${apod[i].url}"
                                         alt="${apod[i].title}"
-                                        />` 
-                            }
+                                        />`
+            }
                             
                             </div>
                             <div class="col-12 col-md-6">
@@ -134,19 +132,18 @@ async function displayApodStart(start) {
                 <div class="card-body container">
                     <div class="row">
                         <div class="col-12 col-md-6">
-                        ${ 
-                            apod.media_type === 'image'
-                            // If media type is image
-                                ? `<img
+                        ${apod.media_type === 'image'
+            // If media type is image
+            ? `<img
                                     class="card-img mb-5 img-fluid"
                                     src="${apod.url}"
                                     alt="${apod.title}"
                                     />`
-                            // If media type is video
-                                : `<div class="ratio ratio-16x9">
+            // If media type is video
+            : `<div class="ratio ratio-16x9">
                                         <iframe src="${apod.url} title="${apod.title}" allowfullscreen" ></iframe>
                                     </div>`
-                        }
+        }
                         </div>
                         <div class="col-12 col-md-6">
                         <h2 class="card-title mb-4">${apod.title}</h2>
@@ -167,9 +164,9 @@ async function displayApodStart(start) {
 function resetUI() {
     const apodContent = document.getElementById('apod-content');
     const apod = document.querySelector('.card');
-    
+
     console.log(apodContent);
-    if(apodContent.length !== 0) {
+    if (apodContent.length !== 0) {
         apodContent.removeChild(apod);
     }
 
@@ -233,13 +230,77 @@ async function displayNeowsData() {
 
 }
 
+async function neowsSearch(event) {
+    event.preventDefault();
+    const searchItem = document.getElementById('search')
+    
+    let item = '';
+    const regex = new RegExp(/^\d{7}?$[^\s]*/);
+    //console.log(regex.test(searchItem.value));
+    // Evaluate search term
+    // - Search term cannot be empty string and needs to be a 7-digit number
+    if(regex.test(searchItem.value)) {
+        item = searchItem.value;
+    }
+    else {
+        alert("Please enter a 7-digit number with no spaces!")
+    }
+    // Test Values: 3542519 2416801 3363908
+    const response = await fetch(`https://api.nasa.gov/neo/rest/v1/neo/${item}?api_key=${globalVars.api.apiKey}`);
+    const data = await response.json();
+    console.log(data)
+    // Create Cards
+    const card = document.createElement('div');
+    card.classList = 'card border p-2 mt-5';
+
+    card.innerHTML = `
+        <div class="card-body container">
+            <div class="row">
+                <h2 class="card-title mb-4 fw-bold">Neo Name: ${data.name}</h2>
+                
+                <table class="table">
+                    <thead>
+                        <th colspan="3" class="fs-3 fw-semibold">Information</th>
+                    <thead>
+                    <tbody>
+                        <tr>
+                        <th class="fw-medium" scope="row">Absolute Magnitude</th>
+                        <td colspan="3">${data.absolute_magnitude_h}</td>
+                        </tr>
+                        <tr>
+                        <th class="fw-medium" scope="row">Minimum Estimated Diameter</th>
+                        <td><em>KM:</em> ${data.estimated_diameter.kilometers.estimated_diameter_min} km </td>
+                        <td><em>Mi:</em> ${data.estimated_diameter.miles.estimated_diameter_min} mi </td>
+                        </tr>
+                        <tr>
+                        <th class="fw-medium" scope="row">Maximum Estimated Diameter</th>
+                        <td><em>KM:</em> ${data.estimated_diameter.kilometers.estimated_diameter_max} km </td>
+                        <td><em>KM:</em> ${data.estimated_diameter.miles.estimated_diameter_max} mi </td>
+                        </tr>
+                        <th class="fw-medium" scope="row">Potentially Hazardous</th>
+                        <td colspan="3">${data.is_potentially_hazardous_asteroid}</td>
+                        </tr>
+                        <th class="fw-medium" scope="row">Close Approach Date</th>
+                        <td colspan="3"><em>Close Approach Date:</em> ${data.close_approach_data[0].close_approach_date_full}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p class="card-text">
+                    <a href="${data.links.self}"> More information on ${data.name}</a>
+                </p>
+            </div>
+        </div>
+    `;
+    document.getElementById('neows-content').appendChild(card);
+}
+
 // Get current date from system
 // - Get PDT offset to subtract from UTC
 function getSystemDate() {
     const date = new Date()
     const offset = date.getTimezoneOffset();
     const localDate = new Date(date.getTime() - offset * 60000);
-    console.log(localDate)
+    
     return localDate.toISOString().slice(0, 10);
 }
 
@@ -266,21 +327,24 @@ function getDateVal(event) {
     form.reset();
 
     displayApodData(startDate, endDate);
-    
-    
+
+
 }
 
-const form = document.getElementById('apod-date-form');
+const apodForm = document.getElementById('apod-date-form');
+const neowsForm = document.getElementById('neows-date-form');
 
 function init() {
     switch (globalVars.currentPage) {
         case '/':
         case '/index.html':
-            form.addEventListener('submit', getDateVal);
+            apodForm.addEventListener('submit', getDateVal);
             displayApodData();
             break;
         case '/neows.html':
+            neowsForm.addEventListener('submit', neowsSearch);
             displayNeowsData();
+            
             break;
     }
 
@@ -288,4 +352,5 @@ function init() {
 
 document.addEventListener('DOMContentLoaded', init);
 
-getSystemDate()
+
+
