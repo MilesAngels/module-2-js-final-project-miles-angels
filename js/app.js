@@ -249,7 +249,7 @@ async function neowsSearch(event) {
     const searchItem = document.getElementById('search')
 
     let item = '';
-    
+
     // Evaluate search term
     // - Search term cannot be empty string and needs to be a 7-digit number
     const regex = new RegExp(/^\d{7}?$[^\s]*/);
@@ -307,9 +307,25 @@ async function neowsSearch(event) {
         </div>
     `;
     document.getElementById('neows-content').appendChild(card);
-    neowsForm.reset();
+    neowsSearchForm.reset();
 }
 
+async function neowsSearchDate(event) {
+    event.preventDefault();
+    resetUI();
+    const searchDate = document.getElementById('neows-date');
+    
+    // Check for search value
+    if (searchDate.value !== '' ) {
+        console.log(searchDate.value);
+    }
+
+    const response = await fetch(`https://api.nasa.gov/neo/rest/v1/feed?start_date=${searchDate.value}&end_date=${searchDate.value}&api_key=fs6RHwXud5zkYO58zcIHVBfKA2bGE5FLloRmVSJo`);
+    const neows = await response.json();
+    console.log(neows.near_earth_objects)
+
+    neowsItemLoop(neows, searchDate);
+}
 // Get current date from system
 // - Get PDT offset to subtract from UTC
 function getSystemDate() {
@@ -364,6 +380,7 @@ function resetUI() {
 
 const apodForm = document.getElementById('apod-date-form');
 const neowsForm = document.getElementById('neows-date-form');
+const neowsSearchForm = document.getElementById('neows-search');
 
 function init() {
     switch (globalVars.currentPage) {
@@ -373,7 +390,8 @@ function init() {
             displayApodData();
             break;
         case '/neows.html':
-            neowsForm.addEventListener('submit', neowsSearch);
+            neowsSearchForm.addEventListener('submit', neowsSearch);
+            neowsForm.addEventListener('submit', neowsSearchDate);
             displayNeowsData();
             break;
     }

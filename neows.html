@@ -51,12 +51,15 @@
     </nav>
     <!-- End of Navigation -->
     <!-- Date Input Form -->
-    <div class="date-range container mt-5">
-      <form id="neows-date-form" class="bg-body-secondary p-3 rounded">
-        <h3></h3>
+    <div class="date-range container mt-5 bg-body-secondary p-3 rounded">
+      <form id="neows-search">
         <div class="mb-3 d-flex">
-          <input type="text" class="form-control" id="search" aria-describedby="Search Asteroids" placeholder="Search..."><button type="button" class="btn btn-dark"><i class="fa-solid fa-magnifying-glass"></i></button>
+          <input type="text" class="form-control" id="search" aria-describedby="Search Asteroids" placeholder="Search..."><button type="submit" id="neows-search-btn" class="btn btn-dark"><i class="fa-solid fa-magnifying-glass"></i></button>
         </div>
+      </form>
+      <form id="neows-date-form">
+        <h3></h3>
+        
         <div class="mb-3">
           <label for="neows-date" class="form-label">Date</label>
           <input type="date" class="form-control" id="neows-date" aria-describedby="Date" placeholder="filter">
