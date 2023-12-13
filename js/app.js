@@ -39,7 +39,11 @@ async function displayApodData(start, end) {
 async function displayApod() {
     let response = await fetch(`${globalVars.api.apiURL}${globalVars.api.categories.pod}?api_key=${globalVars.api.apiKey}`);
     let apod = await response.json();
-    console.log(apod);
+    displayApodHTML(apod);
+}
+
+// Picture of the day HTML
+function displayApodHTML(apod) {
     const card = document.createElement('div');
     card.classList = 'card border border-0 mt-5';
 
@@ -60,8 +64,10 @@ async function displayApod() {
                                         <iframe src="${apod.url} title="${apod.title}" allowfullscreen" ></iframe>
                                     </div>`
         }
-        <figcaption class="text-muted"><em>Copyright: ${apod.copyright}</em></figcaption>                
-        </figure>
+        ${apod.hasOwnProperty('copyright') 
+            ? `<figcaption class="text-muted"><em>Copyright: ${apod.copyright}</em></figcaption>` 
+            : `<figcaption class="d-none"></figcaption>`}
+                        </figure>
                         </div>
                         <div class="col-12 col-md-6">
                         <h2 class="card-title mb-4">${apod.title}</h2>
@@ -75,50 +81,14 @@ async function displayApod() {
                     </div>
                 </div>
                 `;
-
     document.getElementById('apod-content').appendChild(card);
 }
-
 // Display picture of the Day that user chose
 async function displayApodRange(start, end) {
     let response = await fetch(`${globalVars.api.apiURL}${globalVars.api.categories.pod}?api_key=${globalVars.api.apiKey}&start_date=${start}&end_date=${end}`);
     let apod = await response.json();
-    console.log(apod.url);
     for (let i = 0; i < apod.length; i++) {
-        console.log(apod[i])
-        const card = document.createElement('div');
-        card.classList = 'card border border-0 mt-5';
-
-        card.innerHTML = `
-                    <div class="card-body container">
-                        <div class="row">
-                            <div class="col-12 col-md-6">
-                            ${apod[i].media_type !== 'image'
-                ? `<div class="ratio ratio-16x9">
-                                            <iframe src="${apod[i].url} title="${apod[i].title}" allowfullscreen" ></iframe>
-                                        </div>`
-                : `<img
-                                        class="card-img mb-5 img-fluid"
-                                        src="${apod[i].url}"
-                                        alt="${apod[i].title}"
-                                        />`
-            }
-                            
-                            </div>
-                            <div class="col-12 col-md-6">
-                            <h2 class="card-title mb-4">${apod[i].title}</h2>
-                            <p class="card-text">
-                                Featured Date: ${apod[i].date}
-                            </p>
-                            <p class="card-text">
-                                ${apod[i].explanation}
-                            </p>
-                            </div>
-                        </div>
-                    </div>
-                `;
-
-        document.getElementById('apod-content').appendChild(card);
+        displayApodHTML(apod[i]);
     }
 }
 
@@ -126,40 +96,8 @@ async function displayApodRange(start, end) {
 async function displayApodStart(start) {
     let response = await fetch(`${globalVars.api.apiURL}${globalVars.api.categories.pod}?api_key=${globalVars.api.apiKey}&date=${start}`)
     let apod = await response.json();
-    const card = document.createElement('div');
-    card.classList = 'card border border-0 mt-5';
-
-    card.innerHTML = `
-                <div class="card-body container">
-                    <div class="row">
-                        <div class="col-12 col-md-6">
-                        ${apod.media_type === 'image'
-            // If media type is image
-            ? `<img
-                                    class="card-img mb-5 img-fluid"
-                                    src="${apod.url}"
-                                    alt="${apod.title}"
-                                    />`
-            // If media type is video
-            : `<div class="ratio ratio-16x9">
-                                        <iframe src="${apod.url} title="${apod.title}" allowfullscreen" ></iframe>
-                                    </div>`
-        }
-                        </div>
-                        <div class="col-12 col-md-6">
-                        <h2 class="card-title mb-4">${apod.title}</h2>
-                        <p class="card-text">
-                            Featured Date: ${apod.date}
-                        </p>
-                        <p class="card-text">
-                            ${apod.explanation}
-                        </p>
-                        </div>
-                    </div>
-                </div>
-                `;
-
-    document.getElementById('apod-content').appendChild(card);
+    
+    displayApodHTML(apod);
 }
 
 
@@ -316,9 +254,9 @@ async function neowsSearchDate(event) {
     event.preventDefault();
     resetUI();
     const searchDate = document.getElementById('neows-date');
-    
+
     // Check for search value
-    if (searchDate.value !== '' ) {
+    if (searchDate.value !== '') {
         console.log(searchDate.value);
     }
 
