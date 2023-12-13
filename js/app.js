@@ -47,10 +47,11 @@ async function displayApod() {
                 <div class="card-body container">
                     <div class="row">
                         <div class="col-12 col-md-6">
+                        <figure mb-5>
                         ${apod.media_type === 'image'
             // If media type is image
             ? `<img
-                                    class="card-img mb-5 img-fluid"
+                                    class="card-img img-fluid"
                                     src="${apod.url}"
                                     alt="${apod.title}"
                                     />`
@@ -59,7 +60,8 @@ async function displayApod() {
                                         <iframe src="${apod.url} title="${apod.title}" allowfullscreen" ></iframe>
                                     </div>`
         }
-                        
+        <figcaption class="text-muted"><em>Copyright: ${apod.copyright}</em></figcaption>                
+        </figure>
                         </div>
                         <div class="col-12 col-md-6">
                         <h2 class="card-title mb-4">${apod.title}</h2>
@@ -229,7 +231,7 @@ function neowsItemLoop(neows, date) {
                             <td colspan="3">${neows.near_earth_objects[date][i].is_potentially_hazardous_asteroid}</td>
                             </tr>
                             <th class="fw-medium" scope="row">Close Approach Date</th>
-                            <td colspan="3"><em>Close Approach Date:</em> ${neows.near_earth_objects[date][i].close_approach_data[0].close_approach_date_full}</td>
+                            <td colspan="3">${neows.near_earth_objects[date][i].close_approach_data[0].close_approach_date_full}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -296,7 +298,7 @@ async function neowsSearch(event) {
                         <td colspan="3">${data.is_potentially_hazardous_asteroid}</td>
                         </tr>
                         <th class="fw-medium" scope="row">Close Approach Date</th>
-                        <td colspan="3"><em>Close Approach Date:</em> ${data.close_approach_data[0].close_approach_date_full}</td>
+                        <td colspan="3">${data.close_approach_data[0].close_approach_date_full}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -322,12 +324,12 @@ async function neowsSearchDate(event) {
 
     const response = await fetch(`https://api.nasa.gov/neo/rest/v1/feed?start_date=${searchDate.value}&end_date=${searchDate.value}&api_key=fs6RHwXud5zkYO58zcIHVBfKA2bGE5FLloRmVSJo`);
     const neows = await response.json();
-    console.log(neows.near_earth_objects)
+    console.log(neows.near_earth_objects[searchDate.value].length)
 
-    neowsItemLoop(neows, searchDate);
+    neowsItemLoop(neows, searchDate.value);
 }
 // Get current date from system
-// - Get PDT offset to subtract from UTC
+// - Get offset to subtract from UTC to have current Date
 function getSystemDate() {
     const date = new Date()
     const offset = date.getTimezoneOffset();
