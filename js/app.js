@@ -281,24 +281,27 @@ function getDateVal(event) {
     const start = document.getElementById('start-date');
     const end = document.getElementById('end-date');
 
+    // Check if the difference between end date and start date are greater than 7
     let date1 = new Date(start.value);
     let date2 = new Date(end.value);
 
     let time_diff = date2.getTime() - date1.getTime();
     let result = time_diff / (1000 * 60 * 60 * 24);
-    console.log(result)
-
-
+    
     let endDate = '';
     let startDate = '';
 
+    // Validation for user input
+    // - start and end value cannot be empty
+    // - Time / Date difference should be less than or equal to 7 and cannot be less than 0
+    // - start date must be less than end date
     if (start.value !== '') {
         if (end.value !== '') {   
-            if (result <= 7) {
+            if (result <= 7 && result > 0) {
                 endDate = end.value;
             }
             else {
-            alert('Please keep range within 7 days.');
+                alert('Please keep range within 7 days.');
             }
         }
         startDate = start.value;
@@ -313,7 +316,7 @@ function getDateVal(event) {
 
     displayApodData(startDate, endDate);
 
-
+    // check if start date or end date is greater than today's date
 }
 
 // If apod content or neows content section has items, remove items
