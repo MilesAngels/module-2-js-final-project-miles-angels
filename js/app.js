@@ -339,7 +339,7 @@ function init() {
             apodForm.addEventListener('submit', getDateVal);
             displayApodData();
             break;
-        case '/neows.html':
+        case '/neows/neows.html':
             neowsSearchForm.addEventListener('submit', neowsSearch);
             neowsForm.addEventListener('submit', neowsSearchDate);
             displayNeowsData();
