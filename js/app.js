@@ -12,6 +12,10 @@ const globalVars = {
 
 }
 
+const apodForm = document.getElementById('apod-date-form');
+const neowsForm = document.getElementById('neows-date-form');
+const neowsSearchForm = document.getElementById('neows-search');
+
 // displayApodData Async Function
 async function displayApodData(start, end) {
     //console.log(start)
@@ -79,6 +83,7 @@ function displayApodHTML(apod) {
                 `;
     document.getElementById('apod-content').appendChild(card);
 }
+
 // Display picture of the Day that user chose
 async function displayApodRange(start, end) {
     let response = await fetch(`${globalVars.api.apiURL}${globalVars.api.categories.pod}?api_key=${globalVars.api.apiKey}&start_date=${start}&end_date=${end}`);
@@ -95,8 +100,6 @@ async function displayApodStart(start) {
 
     displayApodHTML(apod);
 }
-
-
 
 // NeoWS
 async function displayNeowsData() {
@@ -290,15 +293,15 @@ function getDateVal(event) {
     let startDate = '';
 
     if (start.value !== '') {
-        if (result <= 7) {
-            if (end.value !== '') {
+        if (end.value !== '') {   
+            if (result <= 7) {
                 endDate = end.value;
             }
-            startDate = start.value;
-        }
-        else {
+            else {
             alert('Please keep range within 7 days.');
+            }
         }
+        startDate = start.value;
     }
     else {
         alert("Please enter a start date")
@@ -328,9 +331,6 @@ function resetUI() {
 
 }
 
-const apodForm = document.getElementById('apod-date-form');
-const neowsForm = document.getElementById('neows-date-form');
-const neowsSearchForm = document.getElementById('neows-search');
 
 function init() {
     switch (globalVars.currentPage) {
@@ -351,6 +351,5 @@ function init() {
 
 document.addEventListener('DOMContentLoaded', init);
 
-// create
-// resetUI();
-console.log('hello')
+// Add images to neows and maybe randomize them
+// Add favorites page???
