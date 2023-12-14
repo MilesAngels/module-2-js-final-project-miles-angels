@@ -17,7 +17,7 @@ const neowsForm = document.getElementById('neows-date-form');
 const neowsSearchForm = document.getElementById('neows-search');
 
 // displayApodData Async Function
-async function displayApodData(start, end) {
+function displayApodData(start, end) {
     //console.log(start)
 
     if (start !== undefined && end !== '') {
@@ -44,7 +44,7 @@ async function displayApod() {
     displayApodHTML(apod);
 }
 
-// Picture of the day HTML
+// Picture of the day cards HTML 
 function displayApodHTML(apod) {
     const card = document.createElement('div');
     card.classList = 'card border border-0 mt-5';
@@ -84,7 +84,7 @@ function displayApodHTML(apod) {
     document.getElementById('apod-content').appendChild(card);
 }
 
-// Display picture of the Day that user chose
+// Display pictures within range of user input
 async function displayApodRange(start, end) {
     let response = await fetch(`${globalVars.api.apiURL}${globalVars.api.categories.pod}?api_key=${globalVars.api.apiKey}&start_date=${start}&end_date=${end}`);
     let apod = await response.json();
@@ -93,7 +93,7 @@ async function displayApodRange(start, end) {
     }
 }
 
-// Display pictures within range of user input
+// Display picture of the Day that user chose
 async function displayApodStart(start) {
     let response = await fetch(`${globalVars.api.apiURL}${globalVars.api.categories.pod}?api_key=${globalVars.api.apiKey}&date=${start}`)
     let apod = await response.json();
@@ -101,11 +101,13 @@ async function displayApodStart(start) {
     displayApodHTML(apod);
 }
 
-// NeoWS
+/******************** NeoWS ********************/ 
+
+// Display Neows
 async function displayNeowsData() {
 
     // Get the system date
-    const date = getSystemDate();
+    const systemDate = getSystemDate();
 
     // Instantiate a new Date object that is in UTC Date/Time (NASA API server time is in UTC time)
     let serverDate = new Date().toISOString().slice(0, 10);
@@ -113,8 +115,8 @@ async function displayNeowsData() {
     let title = document.getElementById('title');
 
     // Check if the system (local) date is equal or not equal to the NASA API's server time
-    if (date !== serverDate) {
-        title.innerHTML = `Near Earth Objects for ${date}`;
+    if (systemDate !== serverDate) {
+        title.innerHTML = `Near Earth Objects for ${systemDate}`;
         const response = await fetch(`https://api.nasa.gov/neo/rest/v1/feed?start_date=${date}&end_date=${date}&api_key=fs6RHwXud5zkYO58zcIHVBfKA2bGE5FLloRmVSJo`);
         const neows = await response.json();
         // Iterate through the items in the object
@@ -182,28 +184,41 @@ function neowsItemLoop(neows, date) {
     }
 }
 
+// Neows Search
 async function neowsSearch(event) {
     event.preventDefault();
     resetUI();
+
     const searchItem = document.getElementById('search')
 
     let item = '';
-
+    let alertMessage = document.createElement('div');
     // Evaluate search term
     // - Search term cannot be empty string and needs to be a 7-digit number
     const regex = new RegExp(/^\d{7}?$[^\s]*/);
-
+    
     if (regex.test(searchItem.value)) {
+        if(neowsSearchForm.querySelector('#neows-alert') !== null) {
+            neowsSearchForm.querySelector('#neows-alert').remove();
+        }
         item = searchItem.value;
     }
     else {
-        alert("Please enter a 7-digit number with no spaces!")
+        //alert("Please enter a 7-digit number with no spaces!");
+        if(neowsSearchForm.querySelector('#neows-alert') === null) {
+            // Add the alert message
+            alertMessage.classList = 'alert alert-danger';
+            alertMessage.id = 'neows-alert';
+            alertMessage.innerText = 'Please enter a 7-digit number with no spaces!';
+            neowsSearchForm.appendChild(alertMessage);
+        }
+        
     }
     // Test Values: 3542519 2416801 3363908
     const response = await fetch(`${globalVars.api.apiURL}/neo/rest/v1/neo/${item}?api_key=${globalVars.api.apiKey}`);
     const data = await response.json();
-    console.log(data)
-    // Create Cards
+    //console.log(data)
+    // Create Cards - Change the card design
     const card = document.createElement('div');
     card.classList = 'card border p-2 mt-5';
 
@@ -249,6 +264,7 @@ async function neowsSearch(event) {
     neowsSearchForm.reset();
 }
 
+// Search Date for Neows
 async function neowsSearchDate(event) {
     event.preventDefault();
     resetUI();
@@ -261,18 +277,9 @@ async function neowsSearchDate(event) {
 
     const response = await fetch(`https://api.nasa.gov/neo/rest/v1/feed?start_date=${searchDate.value}&end_date=${searchDate.value}&api_key=fs6RHwXud5zkYO58zcIHVBfKA2bGE5FLloRmVSJo`);
     const neows = await response.json();
-    console.log(neows.near_earth_objects[searchDate.value].length)
+    //console.log(neows.near_earth_objects[searchDate.value].length)
 
     neowsItemLoop(neows, searchDate.value);
-}
-// Get current date from system
-// - Get offset to subtract from UTC to have current Date
-function getSystemDate() {
-    const date = new Date()
-    const offset = date.getTimezoneOffset();
-    const localDate = new Date(date.getTime() - offset * 60000);
-
-    return localDate.toISOString().slice(0, 10);
 }
 
 // Get date values from user from APOD Page
@@ -295,19 +302,25 @@ function getDateVal(event) {
     // - start and end value cannot be empty
     // - Time / Date difference should be less than or equal to 7 and cannot be less than 0
     // - start date must be less than end date
-    if (start.value !== '') {
-        if (end.value !== '') {   
-            if (result <= 7 && result > 0) {
+    if(start.value !== '' && !end.value) {
+        startDate = start.value;
+    }
+    else if(start.value !== '' && end.value !== '') {
+        if(date2.getTime() >= date1.getTime()) {
+            if(result <= 7 && result > 0) {
+                startDate = start.value;
                 endDate = end.value;
             }
             else {
                 alert('Please keep range within 7 days.');
             }
         }
-        startDate = start.value;
+        else {
+            console.log('Sorry the start date must not be greater than your end date.')
+        }
     }
     else {
-        alert("Please enter a start date")
+        alert("Please enter a start date");
     }
 
 
@@ -318,6 +331,17 @@ function getDateVal(event) {
 
     // check if start date or end date is greater than today's date
 }
+// Get current date from system
+// - Get offset to subtract from UTC to have current Date
+function getSystemDate() {
+    const date = new Date()
+    const offset = date.getTimezoneOffset();
+    const localDate = new Date(date.getTime() - offset * 60000);
+
+    return localDate.toISOString().slice(0, 10);
+}
+
+
 
 // If apod content or neows content section has items, remove items
 function resetUI() {
