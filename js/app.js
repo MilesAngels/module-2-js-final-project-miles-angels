@@ -339,7 +339,7 @@ function init() {
             apodForm.addEventListener('submit', getDateVal);
             displayApodData();
             break;
-        case '/neows/neows.html':
+        case '/neows.html':
             neowsSearchForm.addEventListener('submit', neowsSearch);
             neowsForm.addEventListener('submit', neowsSearchDate);
             displayNeowsData();
@@ -352,3 +352,4 @@ document.addEventListener('DOMContentLoaded', init);
 
 // create
 // resetUI();
+console.log('hello')
