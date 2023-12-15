@@ -16,6 +16,23 @@ const apodForm = document.getElementById('apod-date-form');
 const neowsForm = document.getElementById('neows-date-form');
 const neowsSearchForm = document.getElementById('neows-search');
 
+async function fetchAPI(endpoint) {
+    
+    try {
+        let response = await fetch(`${globalVars.api.apiURL}${endpoint}?api_key=${globalVars.api.apiKey}`);
+        if(response.error) {
+            alert(error);
+        }
+        else {
+            let data = await response.json();
+            return data; 
+        }
+        
+    }
+    catch(error) {
+        console.log(error);
+    }
+}
 // displayApodData Async Function
 function displayApodData(start, end) {
     //console.log(start)
@@ -39,8 +56,7 @@ function displayApodData(start, end) {
 
 // Display picture of the Day
 async function displayApod() {
-    let response = await fetch(`${globalVars.api.apiURL}${globalVars.api.categories.pod}?api_key=${globalVars.api.apiKey}`);
-    let apod = await response.json();
+    const apod = await fetchAPI(globalVars.api.categories.pod);
     displayApodHTML(apod);
 }
 
@@ -52,7 +68,7 @@ function displayApodHTML(apod) {
     card.innerHTML = `
                 <div class="card-body container">
                     <div class="row">
-                        <div class="col-12 col-md-6">
+                        <div class="col-12 col-lg-6">
                         <figure mb-5>
                         ${apod.media_type === 'image'
             // If media type is image
@@ -69,7 +85,7 @@ function displayApodHTML(apod) {
             : `<figcaption class="d-none"></figcaption>`}
                         </figure>
                         </div>
-                        <div class="col-12 col-md-6">
+                        <div class="col-12 col-lg-6">
                         <h2 class="card-title mb-4">${apod.title}</h2>
                         <p class="card-text">
                             Featured Date: ${apod.date}
@@ -86,19 +102,71 @@ function displayApodHTML(apod) {
 
 // Display pictures within range of user input
 async function displayApodRange(start, end) {
-    let response = await fetch(`${globalVars.api.apiURL}${globalVars.api.categories.pod}?api_key=${globalVars.api.apiKey}&start_date=${start}&end_date=${end}`);
-    let apod = await response.json();
-    for (let i = 0; i < apod.length; i++) {
-        displayApodHTML(apod[i]);
+    globalVars.api.apiKey = globalVars.api.apiKey + `&start_date=${start}&end_date=${end}`;
+    const apod = await fetchAPI(globalVars.api.categories.pod);
+
+    for(let i = 0; i < apod.length; i++) {
+        displayApodHTML(apod[i])
     }
 }
 
 // Display picture of the Day that user chose
 async function displayApodStart(start) {
-    let response = await fetch(`${globalVars.api.apiURL}${globalVars.api.categories.pod}?api_key=${globalVars.api.apiKey}&date=${start}`)
-    let apod = await response.json();
+    globalVars.api.apiKey = globalVars.api.apiKey + `&start_date=${start}`;
+    const apod = await fetchAPI(globalVars.api.categories.pod);
 
-    displayApodHTML(apod);
+    displayApodHTML(...apod);
+}
+
+// Get date values from user from APOD Page
+function getDateVal(event) {
+    event.preventDefault();
+    const start = document.getElementById('start-date');
+    const end = document.getElementById('end-date');
+
+    // Check if the difference between end date and start date are greater than 7
+    let date1 = new Date(start.value);
+    let date2 = new Date(end.value);
+
+    let time_diff = date2.getTime() - date1.getTime();
+    let result = time_diff / (1000 * 60 * 60 * 24);
+    
+    let endDate = '';
+    let startDate = '';
+
+    // Alert Message
+
+    // Validation for user input
+    // - start and end value cannot be empty
+    // - Time / Date difference should be less than or equal to 7 and cannot be less than 0
+    // - start date must be less than end date
+    if(start.value !== '' && !end.value && start.value <= getSystemDate()) {
+        startDate = start.value;
+    }
+    else if(start.value !== '' && end.value !== '' && start.value <= getSystemDate() && end.value <= getSystemDate()) {
+        if(date2.getTime() >= date1.getTime()) {
+            if(result <= 7 && result > 0) {
+                startDate = start.value;
+                endDate = end.value;
+            }
+            else {
+                alert('Please keep range within 7 days.');
+            }
+        }
+        else {
+            alert('Sorry the start date must not be greater than your end date.')
+        }
+    }
+    else {
+        alert("Please enter a start date");
+        //displayApod(getSystemDate);
+    }
+
+    // Reset Form
+    apodForm.reset();
+
+    displayApodData(startDate, endDate);
+
 }
 
 /******************** NeoWS ********************/ 
@@ -117,10 +185,10 @@ async function displayNeowsData() {
     // Check if the system (local) date is equal or not equal to the NASA API's server time
     if (systemDate !== serverDate) {
         title.innerHTML = `Near Earth Objects for ${systemDate}`;
-        const response = await fetch(`https://api.nasa.gov/neo/rest/v1/feed?start_date=${date}&end_date=${date}&api_key=fs6RHwXud5zkYO58zcIHVBfKA2bGE5FLloRmVSJo`);
+        const response = await fetch(`https://api.nasa.gov/neo/rest/v1/feed?start_date=${systemDate}&end_date=${systemDate}&api_key=fs6RHwXud5zkYO58zcIHVBfKA2bGE5FLloRmVSJo`);
         const neows = await response.json();
         // Iterate through the items in the object
-        neowsItemLoop(neows, date);
+        neowsItemLoop(neows, systemDate);
     }
     else {
         title.innerHTML = `Near Earth Objects for ${serverDate}`;
@@ -217,7 +285,8 @@ async function neowsSearch(event) {
     // Test Values: 3542519 2416801 3363908
     const response = await fetch(`${globalVars.api.apiURL}/neo/rest/v1/neo/${item}?api_key=${globalVars.api.apiKey}`);
     const data = await response.json();
-    //console.log(data)
+
+
     // Create Cards - Change the card design
     const card = document.createElement('div');
     card.classList = 'card border p-2 mt-5';
@@ -270,67 +339,26 @@ async function neowsSearchDate(event) {
     resetUI();
     const searchDate = document.getElementById('neows-date');
 
-    // Check for search value
+    let title = document.getElementById('title');
+
+    // Check if search value is not empty
     if (searchDate.value !== '') {
-        console.log(searchDate.value);
-    }
-
-    const response = await fetch(`https://api.nasa.gov/neo/rest/v1/feed?start_date=${searchDate.value}&end_date=${searchDate.value}&api_key=fs6RHwXud5zkYO58zcIHVBfKA2bGE5FLloRmVSJo`);
-    const neows = await response.json();
-    //console.log(neows.near_earth_objects[searchDate.value].length)
-
-    neowsItemLoop(neows, searchDate.value);
-}
-
-// Get date values from user from APOD Page
-function getDateVal(event) {
-    event.preventDefault();
-    const start = document.getElementById('start-date');
-    const end = document.getElementById('end-date');
-
-    // Check if the difference between end date and start date are greater than 7
-    let date1 = new Date(start.value);
-    let date2 = new Date(end.value);
-
-    let time_diff = date2.getTime() - date1.getTime();
-    let result = time_diff / (1000 * 60 * 60 * 24);
-    
-    let endDate = '';
-    let startDate = '';
-
-    // Validation for user input
-    // - start and end value cannot be empty
-    // - Time / Date difference should be less than or equal to 7 and cannot be less than 0
-    // - start date must be less than end date
-    if(start.value !== '' && !end.value) {
-        startDate = start.value;
-    }
-    else if(start.value !== '' && end.value !== '') {
-        if(date2.getTime() >= date1.getTime()) {
-            if(result <= 7 && result > 0) {
-                startDate = start.value;
-                endDate = end.value;
-            }
-            else {
-                alert('Please keep range within 7 days.');
-            }
-        }
-        else {
-            console.log('Sorry the start date must not be greater than your end date.')
-        }
+        const response = await fetch(`https://api.nasa.gov/neo/rest/v1/feed?start_date=${searchDate.value}&end_date=${searchDate.value}&api_key=fs6RHwXud5zkYO58zcIHVBfKA2bGE5FLloRmVSJo`);
+        const neows = await response.json();
+        
+        title.innerHTML = `Near Earth Objects for ${searchDate.value}`;
+        neowsItemLoop(neows, searchDate.value);
     }
     else {
-        alert("Please enter a start date");
+        alert('Please enter a date')
+        displayNeowsData();
     }
 
-
-    // Reset Form
-    apodForm.reset();
-
-    displayApodData(startDate, endDate);
-
-    // check if start date or end date is greater than today's date
+    
+    neowsForm.reset();
 }
+
+
 // Get current date from system
 // - Get offset to subtract from UTC to have current Date
 function getSystemDate() {
@@ -377,6 +405,7 @@ function init() {
 }
 
 document.addEventListener('DOMContentLoaded', init);
+
 
 // Add images to neows and maybe randomize them
 // Add favorites page???

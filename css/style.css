@@ -1,3 +1,39 @@
-.card-width {
-    width: min(100%, 500px);
+[data-theme='light'] {
+    --color-bg: #ffffff;
+    --color-fg: #111b3f;
+} 
+
+[data-theme='dark'] {
+    --color-bg: #120723;
+    --color-fg: #ffffff;
+}
+
+body {
+    background-color: var(--color-bg);
+    color: var(--color-fg);
+}
+
+.nav-link, .active {
+    color: var(--color-fg) !important;
+}
+
+#dark-light {
+    color:var(--color-fg);
+    border: 1px solid var(--color-fg);
+}
+
+.form-label {
+    color: #111b3f;
+}
+
+.navbar-toggler {
+    border: none;
+}
+.navbar-toggler-icon {
+    background-image: none;
+}
+
+.navbar-toggler-icon i {
+    width: 30px;
+    color: var(--color-fg);
 }
