@@ -17,19 +17,19 @@ const neowsForm = document.getElementById('neows-date-form');
 const neowsSearchForm = document.getElementById('neows-search');
 
 async function fetchAPI(endpoint) {
-    
+
     try {
         let response = await fetch(`${globalVars.api.apiURL}${endpoint}?api_key=${globalVars.api.apiKey}`);
-        if(response.error) {
+        if (response.error) {
             alert(error);
         }
         else {
             let data = await response.json();
-            return data; 
+            return data;
         }
-        
+
     }
-    catch(error) {
+    catch (error) {
         console.log(error);
     }
 }
@@ -52,6 +52,7 @@ function displayApodData(start, end) {
     }
     resetUI();
 
+
 }
 
 // Display picture of the Day
@@ -63,13 +64,17 @@ async function displayApod() {
 // Picture of the day cards HTML 
 function displayApodHTML(apod) {
     const card = document.createElement('div');
-    card.classList = 'card border border-0 mt-5';
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.classList = 'btn btn-dark add-to-favorite m-3'
+    button.innerHTML = 'Add to Favorites';
+    card.classList = 'card border border-0 mt-5 p-3';
 
     card.innerHTML = `
                 <div class="card-body container">
                     <div class="row">
                         <div class="col-12 col-lg-6">
-                        <figure mb-5>
+                        <figure class="mb-3">
                         ${apod.media_type === 'image'
             // If media type is image
             ? `<img class="card-img img-fluid" src="${apod.url}" alt="${apod.title}"/>`
@@ -85,8 +90,9 @@ function displayApodHTML(apod) {
             : `<figcaption class="d-none"></figcaption>`}
                         </figure>
                         </div>
-                        <div class="col-12 col-lg-6">
+                        <div class="information col-12 col-lg-6">
                         <h2 class="card-title mb-4">${apod.title}</h2>
+
                         <p class="card-text">
                             Featured Date: ${apod.date}
                         </p>
@@ -97,7 +103,10 @@ function displayApodHTML(apod) {
                     </div>
                 </div>
                 `;
+    card.appendChild(button);
     document.getElementById('apod-content').appendChild(card);
+
+    button.addEventListener('click', addFavToStorage);
 }
 
 // Display pictures within range of user input
@@ -105,7 +114,7 @@ async function displayApodRange(start, end) {
     globalVars.api.apiKey = globalVars.api.apiKey + `&start_date=${start}&end_date=${end}`;
     const apod = await fetchAPI(globalVars.api.categories.pod);
 
-    for(let i = 0; i < apod.length; i++) {
+    for (let i = 0; i < apod.length; i++) {
         displayApodHTML(apod[i])
     }
 }
@@ -130,7 +139,7 @@ function getDateVal(event) {
 
     let time_diff = date2.getTime() - date1.getTime();
     let result = time_diff / (1000 * 60 * 60 * 24);
-    
+
     let endDate = '';
     let startDate = '';
 
@@ -140,12 +149,12 @@ function getDateVal(event) {
     // - start and end value cannot be empty
     // - Time / Date difference should be less than or equal to 7 and cannot be less than 0
     // - start date must be less than end date
-    if(start.value !== '' && !end.value && start.value <= getSystemDate()) {
+    if (start.value !== '' && !end.value && start.value <= getSystemDate()) {
         startDate = start.value;
     }
-    else if(start.value !== '' && end.value !== '' && start.value <= getSystemDate() && end.value <= getSystemDate()) {
-        if(date2.getTime() >= date1.getTime()) {
-            if(result <= 7 && result > 0) {
+    else if (start.value !== '' && end.value !== '' && start.value <= getSystemDate() && end.value <= getSystemDate()) {
+        if (date2.getTime() >= date1.getTime()) {
+            if (result <= 7 && result > 0) {
                 startDate = start.value;
                 endDate = end.value;
             }
@@ -169,7 +178,7 @@ function getDateVal(event) {
 
 }
 
-/******************** NeoWS ********************/ 
+/******************** NeoWS ********************/
 
 // Display Neows
 async function displayNeowsData() {
@@ -185,7 +194,7 @@ async function displayNeowsData() {
     // Check if the system (local) date is equal or not equal to the NASA API's server time
     if (systemDate !== serverDate) {
         title.innerHTML = `Near Earth Objects for ${systemDate}`;
-        const response = await fetch(`https://api.nasa.gov/neo/rest/v1/feed?start_date=${systemDate}&end_date=${systemDate}&api_key=fs6RHwXud5zkYO58zcIHVBfKA2bGE5FLloRmVSJo`);
+        const response = await fetch(`${globalVars.api.apiURL}${globalVars.api.categories.neows}?start_date=${systemDate}&end_date=${systemDate}&api_key=${globalVars.api.apiKey}`);
         const neows = await response.json();
         // Iterate through the items in the object
         neowsItemLoop(neows, systemDate);
@@ -264,23 +273,23 @@ async function neowsSearch(event) {
     // Evaluate search term
     // - Search term cannot be empty string and needs to be a 7-digit number
     const regex = new RegExp(/^\d{7}?$[^\s]*/);
-    
+
     if (regex.test(searchItem.value)) {
-        if(neowsSearchForm.querySelector('#neows-alert') !== null) {
+        if (neowsSearchForm.querySelector('#neows-alert') !== null) {
             neowsSearchForm.querySelector('#neows-alert').remove();
         }
         item = searchItem.value;
     }
     else {
         //alert("Please enter a 7-digit number with no spaces!");
-        if(neowsSearchForm.querySelector('#neows-alert') === null) {
+        if (neowsSearchForm.querySelector('#neows-alert') === null) {
             // Add the alert message
             alertMessage.classList = 'alert alert-danger';
             alertMessage.id = 'neows-alert';
             alertMessage.innerText = 'Please enter a 7-digit number with no spaces!';
             neowsSearchForm.appendChild(alertMessage);
         }
-        
+
     }
     // Test Values: 3542519 2416801 3363908
     const response = await fetch(`${globalVars.api.apiURL}/neo/rest/v1/neo/${item}?api_key=${globalVars.api.apiKey}`);
@@ -343,9 +352,9 @@ async function neowsSearchDate(event) {
 
     // Check if search value is not empty
     if (searchDate.value !== '') {
-        const response = await fetch(`https://api.nasa.gov/neo/rest/v1/feed?start_date=${searchDate.value}&end_date=${searchDate.value}&api_key=fs6RHwXud5zkYO58zcIHVBfKA2bGE5FLloRmVSJo`);
+        const response = await fetch(`${globalVars.api.apiURL}${globalVars.api.categories.neows}?start_date=${searchDate.value}&end_date=${searchDate.value}&api_key=fs6RHwXud5zkYO58zcIHVBfKA2bGE5FLloRmVSJo`);
         const neows = await response.json();
-        
+
         title.innerHTML = `Near Earth Objects for ${searchDate.value}`;
         neowsItemLoop(neows, searchDate.value);
     }
@@ -354,7 +363,7 @@ async function neowsSearchDate(event) {
         displayNeowsData();
     }
 
-    
+
     neowsForm.reset();
 }
 
@@ -386,6 +395,55 @@ function resetUI() {
 
 }
 
+// Add favorites page
+function displayFavorites() {
+    let favoritesContent = document.getElementById('favorites-content');
+    let items = getFavToStorage();
+    const parser = new DOMParser();
+
+    items.forEach(item => {
+        let card = document.createElement('div');
+        card.classList = 'card favorite';
+        const html = parser.parseFromString(item, "text/html");
+        card.appendChild(html.body.firstChild);
+        favoritesContent.appendChild(card);
+    })
+
+}
+
+// Get Item
+function getFavToStorage() {
+    let favorites;
+
+    // Check if local storage is empty
+    if (localStorage.getItem('items') === null) {
+        // If local storage is empty, then set itemsFromStorage to an empty array
+        favorites = [];
+    }
+    else {
+        // If local storage has items in it, then parse its content and get the items
+        favorites = JSON.parse(localStorage.getItem('items'));
+
+    }
+
+    return favorites;
+}
+
+// 
+function addFavToStorage(event, item) {
+    const favorites = getFavToStorage();
+    item = event.target.parentElement.innerHTML;
+    
+    if(favorites.includes(item)) {
+        alert("Item is already part of favorites list.")
+    }
+    else {
+        favorites.push(item);
+        localStorage.setItem('items', JSON.stringify(favorites));
+    }
+    
+    //localStorage.removeItem('items');
+}
 
 function init() {
     switch (globalVars.currentPage) {
@@ -400,12 +458,12 @@ function init() {
             neowsForm.addEventListener('submit', neowsSearchDate);
             displayNeowsData();
             break;
+        case '/favorites.html':
+        case 'favorites':
+            displayFavorites();
+            break;
     }
 
 }
 
 document.addEventListener('DOMContentLoaded', init);
-
-
-// Add images to neows and maybe randomize them
-// Add favorites page???

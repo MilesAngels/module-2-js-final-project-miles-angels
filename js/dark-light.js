@@ -88,5 +88,3 @@ function calculateSettingAsThemeString({ localStorageTheme, systemSettingDark })
     }
     currentThemeSetting = newTheme;
   }); 
-
-console.log(localStorage)
