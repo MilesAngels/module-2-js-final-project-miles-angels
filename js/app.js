@@ -67,23 +67,40 @@ async function displayApod() {
 
 // Picture of the day cards HTML 
 function displayApodHTML(apod) {
+    // Create Card
     const card = document.createElement('div');
     card.classList = 'card border border-0 mt-5 p-3';
+
+    // Create Card Body
     const cardBody = document.createElement('div');
     cardBody.classList = 'card-body container';
+
+    // Create Card Row
     const cardRow = document.createElement('div');
     cardRow.classList = 'row';
+
+    // Create Card Content
     const cardContent = document.createElement('div');
     cardContent.classList = 'information col-12 col-lg-6';
+
+    // Create add to favorite button
     const button = document.createElement('button');
+
+    //Create Title
     const apodTitle = document.createElement('h2');
     apodTitle.classList = 'card-title mb-4';
     apodTitle.innerHTML = `${apod.title}`;
+
+    // Create Flexbox container
     const apodHeading = document.createElement('div');
     apodHeading.classList = 'd-flex align-items-center';
+
+    // Create Date
     const apodDate = document.createElement('p');
-    apodDate.classList = 'mb-0 card-text'
-    apodDate.innerHTML = `Featured Date: ${apod.date}`
+    apodDate.classList = 'mb-0 card-text';
+    apodDate.innerHTML = `Featured Date: ${apod.date}`;
+
+    // Create Inner Content
     const apodContent = document.getElementById('apod-content');
     const apodText = document.createElement('p');
     apodText.classList = 'card-text'
@@ -330,8 +347,11 @@ async function neowsSearch(event) {
     card.innerHTML = `
         <div class="card-body container">
             <div class="row">
+            <img class="col-4 asteroid-img" src="./assets/img/dark-asteroid.png">
+            <div class="col">
                 <h2 class="card-title mb-4 fw-bold">Neo Name: ${data.name}</h2>
                 <p>Neo Reference ID: ${data.id}</p>
+            </div>
                 <table class="table">
                     <thead>
                         <th colspan="3" class="fs-3 fw-semibold">Information</th>
