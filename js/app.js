@@ -68,47 +68,59 @@ async function displayApod() {
 // Picture of the day cards HTML 
 function displayApodHTML(apod) {
     const card = document.createElement('div');
+    card.classList = 'card border border-0 mt-5 p-3';
+    const cardBody = document.createElement('div');
+    cardBody.classList = 'card-body container';
+    const cardRow = document.createElement('div');
+    cardRow.classList = 'row';
+    const cardContent = document.createElement('div');
+    cardContent.classList = 'information col-12 col-lg-6';
     const button = document.createElement('button');
+    const apodTitle = document.createElement('h2');
+    apodTitle.classList = 'card-title mb-4';
+    apodTitle.innerHTML = `${apod.title}`;
+    const apodHeading = document.createElement('div');
+    apodHeading.classList = 'd-flex align-items-center';
+    const apodDate = document.createElement('p');
+    apodDate.classList = 'mb-0 card-text'
+    apodDate.innerHTML = `Featured Date: ${apod.date}`
     const apodContent = document.getElementById('apod-content');
+    const apodText = document.createElement('p');
+    apodText.classList = 'card-text'
     button.type = 'button';
     button.classList = 'btn btn-dark add-to-favorite m-3'
     button.innerHTML = 'Add to Favorites';
-    card.classList = 'card border border-0 mt-5 p-3';
-
-    card.innerHTML = `
-                <div class="card-body container">
-                    <div class="row">
-                        <div class="col-12 col-lg-6">
+    cardRow.innerHTML = `
+            <div class="col-12 col-lg-6">
                         <figure class="mb-3">
                         ${apod.media_type === 'image'
-            // If media type is image
-            ? `<img class="card-img img-fluid" src="${apod.url}" alt="${apod.title}"/>`
-            // If media type is video
-            : `<div class="ratio ratio-16x9">
-                                    <iframe src="${apod.url} title="${apod.title}" allowfullscreen" ></iframe>
-                                </div>`
-        }
+                            // If media type is image
+                            ? `<img class="card-img img-fluid" src="${apod.url}" alt="${apod.title}"/>`
+                            // If media type is video
+                            : `<div class="ratio ratio-16x9">
+                                                    <iframe src="${apod.url} title="${apod.title}" allowfullscreen" ></iframe>
+                                                </div>`
+                        }
                         ${apod.hasOwnProperty('copyright')
-            // If apod has copyright display it
-            ? `<figcaption class="text-muted"><em>Copyright: ${apod.copyright}</em></figcaption>`
-            // else do not display it
-            : `<figcaption class="d-none"></figcaption>`}
+                            // If apod has copyright display it
+                            ? `<figcaption class="text-muted"><em>Copyright: ${apod.copyright}</em></figcaption>`
+                            // else do not display it
+                            : `<figcaption class="d-none"></figcaption>`
+                        }
                         </figure>
                         </div>
-                        <div class="information col-12 col-lg-6">
-                        <h2 class="card-title mb-4">${apod.title}</h2>
-
-                        <p class="card-text">
-                            Featured Date: ${apod.date}
-                        </p>
-                        <p class="card-text">
-                            ${apod.explanation}
-                        </p>
-                        </div>
-                    </div>
-                </div>
-                `;
-    card.appendChild(button);
+    `;
+    apodText.innerHTML = `${apod.explanation}`;
+    cardContent.appendChild(apodTitle); 
+    apodHeading.appendChild(apodDate);
+    apodHeading.appendChild(button); 
+    cardContent.appendChild(apodHeading);
+    cardContent.appendChild(apodText); 
+    cardRow.append(cardContent)
+    cardBody.appendChild(cardRow);
+    cardRow.appendChild(cardContent);
+    card.appendChild(cardBody);
+    console.log(card)
     apodContent.appendChild(card);
 
     button.addEventListener('click', addFavToStorage);
