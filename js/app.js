@@ -422,6 +422,7 @@ function resetUI() {
 
 }
 
+/******************** Favorites ********************/
 // Add favorites page
 function displayFavorites() {
     let favoritesContent = document.getElementById('favorites-content');
@@ -456,7 +457,7 @@ function getFavToStorage() {
     return favorites;
 }
 
-// 
+// Add Item to Favorite
 function addFavToStorage(event, item) {
     const favorites = getFavToStorage();
     item = event.target.parentElement.innerHTML;
