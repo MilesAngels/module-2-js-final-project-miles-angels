@@ -57,9 +57,29 @@ body {
     flex-wrap: wrap;
 }
 
+#neows-content {
+    display: flex;
+    justify-content: space-evenly;
+    gap: 3rem;
+    flex-wrap: wrap;
+}
+
+#neows-content > .card {
+    width: min(100%, 550px);
+}
+
 
 .card > .btn {
     width: min(100%, 200px);
+}
+
+th, td{
+    background-color: var(--color-bg) !important;
+    color: var(--color-fg) !important;
+}
+
+.asteroid-img {
+    border-radius: 20%;
 }
 
 @media screen and (min-width: 500px){

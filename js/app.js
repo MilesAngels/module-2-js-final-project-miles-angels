@@ -15,16 +15,19 @@ const globalVars = {
 const apodForm = document.getElementById('apod-date-form');
 const neowsForm = document.getElementById('neows-date-form');
 const neowsSearchForm = document.getElementById('neows-search');
+const apodContent = document.getElementById('apod-content');
 
 async function fetchAPI(endpoint) {
 
     try {
         let response = await fetch(`${globalVars.api.apiURL}${endpoint}?api_key=${globalVars.api.apiKey}`);
+        
         if (response.error) {
             alert(error);
         }
         else {
             let data = await response.json();
+
             return data;
         }
 
@@ -33,6 +36,7 @@ async function fetchAPI(endpoint) {
         console.log(error);
     }
 }
+
 // displayApodData Async Function
 function displayApodData(start, end) {
     //console.log(start)
@@ -44,9 +48,9 @@ function displayApodData(start, end) {
     else if (start !== '' && start !== undefined) {
         resetUI();
         displayApodStart(start);
-
     }
     else {
+        resetUI();
         displayApod();
 
     }
@@ -65,6 +69,7 @@ async function displayApod() {
 function displayApodHTML(apod) {
     const card = document.createElement('div');
     const button = document.createElement('button');
+    const apodContent = document.getElementById('apod-content');
     button.type = 'button';
     button.classList = 'btn btn-dark add-to-favorite m-3'
     button.innerHTML = 'Add to Favorites';
@@ -104,7 +109,7 @@ function displayApodHTML(apod) {
                 </div>
                 `;
     card.appendChild(button);
-    document.getElementById('apod-content').appendChild(card);
+    apodContent.appendChild(card);
 
     button.addEventListener('click', addFavToStorage);
 }
@@ -123,8 +128,12 @@ async function displayApodRange(start, end) {
 async function displayApodStart(start) {
     globalVars.api.apiKey = globalVars.api.apiKey + `&start_date=${start}`;
     const apod = await fetchAPI(globalVars.api.categories.pod);
-
-    displayApodHTML(...apod);
+    for(let i = 0; i < apod.length; i++) {
+        if(apod[i].date === start){
+            displayApodHTML(apod[i]);
+        }
+    }
+    
 }
 
 // Get date values from user from APOD Page
@@ -222,8 +231,14 @@ function neowsItemLoop(neows, date) {
         card.innerHTML = `
             <div class="card-body container">
                 <div class="row">
-                    <h2 class="card-title mb-4 fw-bold">Neo Name: ${neows.near_earth_objects[date][i].name}</h2>
-                    <p>Neo Reference ID: ${neows.near_earth_objects[date][i].id}</p>
+                    <div class="row">
+                        <img class="col-4 asteroid-img" src="./assets/img/dark-asteroid.png">
+                        <div class="col">
+                            <h2 class="card-title mb-4 fw-bold">Neo Name: ${neows.near_earth_objects[date][i].name}</h2>
+                            <p>Neo Reference ID: ${neows.near_earth_objects[date][i].id}</p>
+                        </div>
+                        
+                    </div>
                     <table class="table">
                         <thead>
                             <th colspan="3" class="fs-3 fw-semibold">Information</th>
