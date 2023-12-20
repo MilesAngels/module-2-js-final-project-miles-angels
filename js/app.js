@@ -21,7 +21,7 @@ async function fetchAPI(endpoint) {
 
     try {
         let response = await fetch(`${globalVars.api.apiURL}${endpoint}?api_key=${globalVars.api.apiKey}`);
-        
+
         if (response.error) {
             alert(error);
         }
@@ -67,78 +67,49 @@ async function displayApod() {
 
 // Picture of the day cards HTML 
 function displayApodHTML(apod) {
-    // Create Card
     const card = document.createElement('div');
-    card.classList = 'card border border-0 mt-5 p-3';
-
-    // Create Card Body
-    const cardBody = document.createElement('div');
-    cardBody.classList = 'card-body container';
-
-    // Create Card Row
-    const cardRow = document.createElement('div');
-    cardRow.classList = 'row';
-
-    // Create Card Content
-    const cardContent = document.createElement('div');
-    cardContent.classList = 'information col-12 col-lg-6';
-
-    // Create add to favorite button
+    card.classList = 'card border border-0 mt-5';
     const button = document.createElement('button');
-
-    //Create Title
-    const apodTitle = document.createElement('h2');
-    apodTitle.classList = 'card-title mb-4';
-    apodTitle.innerHTML = `${apod.title}`;
-
-    // Create Flexbox container
-    const apodHeading = document.createElement('div');
-    apodHeading.classList = 'd-flex align-items-center';
-
-    // Create Date
-    const apodDate = document.createElement('p');
-    apodDate.classList = 'mb-0 card-text';
-    apodDate.innerHTML = `Featured Date: ${apod.date}`;
-
-    // Create Inner Content
-    const apodContent = document.getElementById('apod-content');
-    const apodText = document.createElement('p');
-    apodText.classList = 'card-text'
     button.type = 'button';
     button.classList = 'btn btn-dark add-to-favorite m-3'
-    button.innerHTML = 'Add to Favorites';
-    cardRow.innerHTML = `
-            <div class="col-12 col-lg-6">
+    button.innerHTML = '<i class="fa-regular fa-star"></i>';
+    card.classList = 'card border border-0 mt-5 p-3';
+
+    card.innerHTML = `
+                <div class="card-body container">
+                    <div class="row">
+                        <div class="col-12 col-lg-6">
+                        <figure mb-5>
                         <figure class="mb-3">
                         ${apod.media_type === 'image'
-                            // If media type is image
-                            ? `<img class="card-img img-fluid" src="${apod.url}" alt="${apod.title}"/>`
-                            // If media type is video
-                            : `<div class="ratio ratio-16x9">
-                                                    <iframe src="${apod.url} title="${apod.title}" allowfullscreen" ></iframe>
-                                                </div>`
-                        }
-                        ${apod.hasOwnProperty('copyright')
-                            // If apod has copyright display it
-                            ? `<figcaption class="text-muted"><em>Copyright: ${apod.copyright}</em></figcaption>`
-                            // else do not display it
-                            : `<figcaption class="d-none"></figcaption>`
-                        }
+            // If media type is image
+            ? `<img class="card-img img-fluid" src="${apod.url}" alt="${apod.title}"/>`
+            // If media type is video
+            : `<div class="ratio ratio-16x9">
+            <iframe src="${apod.url} title="${apod.title}" allowfullscreen" ></iframe>
+            </div>`
+        }
+            ${apod.hasOwnProperty('copyright')
+            // If apod has copyright display it
+            ? `<figcaption class="text-muted"><em>Copyright: ${apod.copyright}</em></figcaption>`
+            // else do not display it
+            : `<figcaption class="d-none"></figcaption>`}
                         </figure>
                         </div>
-    `;
-    apodText.innerHTML = `${apod.explanation}`;
-    cardContent.appendChild(apodTitle); 
-    apodHeading.appendChild(apodDate);
-    apodHeading.appendChild(button); 
-    cardContent.appendChild(apodHeading);
-    cardContent.appendChild(apodText); 
-    cardRow.append(cardContent)
-    cardBody.appendChild(cardRow);
-    cardRow.appendChild(cardContent);
-    card.appendChild(cardBody);
-    console.log(card)
-    apodContent.appendChild(card);
+                        <div class="col-12 col-lg-6">
+                        <div class="information col-12">
+                        <h2 class="card-title mb-4">${apod.title}</h2>
+                        <p class="card-text">
+                            Featured Date: ${apod.date}
+                        </p>
+                        <p class="card-text">
+                            ${apod.explanation}
+                        </p>
+                    </div>
+                </div>
+                `;
+    card.appendChild(button);
+    document.getElementById('apod-content').appendChild(card);
 
     button.addEventListener('click', addFavToStorage);
 }
@@ -157,12 +128,12 @@ async function displayApodRange(start, end) {
 async function displayApodStart(start) {
     globalVars.api.apiKey = globalVars.api.apiKey + `&start_date=${start}`;
     const apod = await fetchAPI(globalVars.api.categories.pod);
-    for(let i = 0; i < apod.length; i++) {
-        if(apod[i].date === start){
+    for (let i = 0; i < apod.length; i++) {
+        if (apod[i].date === start) {
             displayApodHTML(apod[i]);
         }
     }
-    
+
 }
 
 // Get date values from user from APOD Page
@@ -448,7 +419,7 @@ function displayFavorites() {
     let favoritesContent = document.getElementById('favorites-content');
     let items = getFavToStorage();
     const parser = new DOMParser();
-
+    
     items.forEach(item => {
         let card = document.createElement('div');
         card.classList = 'card favorite';
@@ -480,16 +451,22 @@ function getFavToStorage() {
 // Add Item to Favorite
 function addFavToStorage(event, item) {
     const favorites = getFavToStorage();
-    item = event.target.parentElement.innerHTML;
-    
-    if(favorites.includes(item)) {
-        alert("Item is already part of favorites list.")
+    item = event.target.parentElement.parentElement.parentElement.innerHTML;
+
+    if (!favorites.includes(item)) {
+        if(event.target.classList.contains('fa-regular')) {
+
+            favorites.push(item);
+            localStorage.setItem('items', JSON.stringify(favorites));
+        }
+        
+        
     }
     else {
-        favorites.push(item);
-        localStorage.setItem('items', JSON.stringify(favorites));
+        alert("Item is already part of favorites list.")
+
     }
-    
+
     //localStorage.removeItem('items');
 }
 

@@ -70,7 +70,13 @@ body {
 
 
 .card > .btn {
-    width: min(100%, 200px);
+    width: fit-content;
+    padding: 0.5em;
+    position: absolute;
+    background-color: #120723;
+    border:none;
+    left: 1.1em;
+    top: 1.1em;
 }
 
 th, td{
